@@ -1,4 +1,4 @@
-package com.Intumit.bulletinBoard;
+package com.Intumit.bulletinBoard.web;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
