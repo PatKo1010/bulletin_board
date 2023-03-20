@@ -13,46 +13,46 @@
 		integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
 		crossorigin="anonymous"></script>
 	<script>
-	$("form").submit((e) => {
-		const emailVal = $("#emailInput").val();
-		const passwordVal = $("#passwordInput").val();
-		// if (emailVal === "" || passwordVal === "") {
-		// 	alert("please input email and password")
-		// 	return;
-		// }
-		fetch("/logIn", {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json; charset=utf-8'
-			},
-			body: JSON.stringify({
-				'email': emailVal,
-				'password': passwordVal
-			})
-		})
-			.then(response => response.json())
-			.then((d) => {
-				console.log(d);
+	$(document).ready ( function (){
+		$("#logInForm").submit ((e) => {
+			e.preventDefault();
+			const emailVal = $("#emailInput").val();
+			const passwordVal = $("#passwordInput").val();
+			if (emailVal === "" || passwordVal === "") {
+				alert("please input email and password")
+				return;
+			}
+			
+			fetch("/logIn", {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json; charset=utf-8'
+				},
+				body: JSON.stringify({
+					'email': emailVal,
+					'password': passwordVal
+				})
+			}).then( response  => {
+					if (response.ok){
+						return response.json();
+					} else {
+						 alert("No Users found! Please check your email or password")
+						 throw new Error("No Users Found")
+					}
+			}).then((d) => {
+					console.log(d);
+					const href = "/bullets/page/1"
+					window.location = href
 			}).catch((error) => {
-				console.log("an error here")
-				console.log(error)
-
-			});
-
-
+					console.log(error)
+				});
+		})
+	
+	
+	
+	
+	
 	})
-
-
-
-
-
-
-
-
-
-
-
-
 
 </script>
 </head>
