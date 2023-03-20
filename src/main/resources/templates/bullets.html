@@ -10,6 +10,9 @@
 	rel="stylesheet"
 	integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
 	crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.6.4.js"
+	integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="
+	crossorigin="anonymous"></script>
 </head>
 <style>
 #paging {
@@ -19,6 +22,21 @@
 	flex-wrap: wrap;
 }
 </style>
+<script>
+
+	$(document).ready(function () {
+		$("#addButton").click((e) => {
+			window.location = "/bullet/add"
+		})
+		
+		
+		
+	})
+	
+
+
+
+</script>
 
 <body>
 	<nav class="navbar navbar-primary bg-primary">
@@ -29,7 +47,7 @@
 
 	<br />
 	<br />
-	<button type="button" class="btn btn-success">add</button>
+	<button id="addButton" type="button" class="btn btn-success">add</button>
 	<br />
 	<br />
 
@@ -52,10 +70,10 @@
 				<td th:text="${bullet.releaseDate}"></td>
 				<td th:text="${bullet.dueDate}"></td>
 				<td>
-					<button type="button" class="btn btn-primary">Modify</button>
+					<button id="modifyButton" type="button" class="btn btn-primary">Modify</button>
 				</td>
 				<td>
-					<button type="button" class="btn btn-danger">Delete</button>
+					<button id="deleteButton" type="button" class="btn btn-danger">Delete</button>
 				</td>
 			</tr>
 		</tbody>

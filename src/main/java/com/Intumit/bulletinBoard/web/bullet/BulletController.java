@@ -35,5 +35,15 @@ public class BulletController {
 		return "bullets";
 	}
 	
+	@GetMapping ("/bullet/add")
+	public String addPage (Model model, HttpServletRequest request) {
+		User user  = (User)request.getSession().getAttribute("user");
+		if (user == null) {
+			return "login";
+		}
+		model.addAttribute("action", "add");
+		return "bulletin-add-edit";
+	}
+	
 
 }
