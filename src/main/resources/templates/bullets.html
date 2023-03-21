@@ -29,8 +29,12 @@
 			window.location = "/bullet/add"
 		})
 		
-		
-		
+		$(".modifyButton").click (e => {
+			const target = e.target;
+			const bulletId = target.parentElement.parentElement.children[0].innerText;
+			window.location = "/bullet/modify/"+bulletId;
+
+		})
 	})
 	
 
@@ -70,7 +74,7 @@
 				<td th:text="${bullet.releaseDate}"></td>
 				<td th:text="${bullet.dueDate}"></td>
 				<td>
-					<button id="modifyButton" type="button" class="btn btn-primary">Modify</button>
+					<button type="button" class="btn btn-primary modifyButton">Modify</button>
 				</td>
 				<td>
 					<button id="deleteButton" type="button" class="btn btn-danger">Delete</button>

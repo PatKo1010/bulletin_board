@@ -45,9 +45,15 @@ public class Bullet {
 	private Date dueDate;
 	
 	@NonNull
+	@Column (name = "attached_file_name")
+	private String attachedFile;
+	
+	@NonNull
 	@ManyToOne(optional = false)
 	@JoinColumn(name="user_id",referencedColumnName = "id")
 	private User user;
+	
+	
 
 	@Override
 	public String toString() {

@@ -7,7 +7,6 @@ import com.Intumit.bulletinBoard.web.bullet.Bullet;
 public interface BulletService {
 	public Bullet findById (Integer id) throws Exception;
 	public HashMap<String, Object> findBulletsByPage(Integer pageNo , Integer size);
-	public Bullet edit (Bullet bullet);
-	public Bullet add (Bullet bullet);
+	public Bullet save (Bullet bullet);
 
 }

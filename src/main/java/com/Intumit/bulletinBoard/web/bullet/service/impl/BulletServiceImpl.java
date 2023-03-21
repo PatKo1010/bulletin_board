@@ -1,14 +1,17 @@
 package com.Intumit.bulletinBoard.web.bullet.service.impl;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.Intumit.bulletinBoard.web.bullet.Bullet;
 import com.Intumit.bulletinBoard.web.bullet.BulletRepository;
@@ -41,13 +44,22 @@ public class BulletServiceImpl implements BulletService {
 	}
 
 	@Override
-	public Bullet edit(Bullet bullet) {
+	public Bullet save(Bullet bullet) {
 		 return bulletRepo.save(bullet);
 	}
-
-	@Override
-	public Bullet add(Bullet bullet) {
-		return bulletRepo.save(bullet);
+	
+	public String saveFile(MultipartFile file, String filePath) throws Exception{
+		JSONObject object = new JSONObject();
+		String fileName = file.getOriginalFilename();
+		File dest = new File(filePath + fileName);
+		if (!dest.getParentFile().exists()) {
+			dest.getParentFile().mkdirs();
+		}
+		file.transferTo(dest);
+		return dest.getPath();
 	}
+
+
+	
 
 }
