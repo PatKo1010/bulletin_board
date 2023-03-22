@@ -16,17 +16,12 @@
 </head>
 <script>
   $(document).ready(function () {
-	
-	
-	  
-	  
-	  
+
     $("#form").submit((e) => {
       e.preventDefault();
       submitForm()
     })
     
-
     submitForm = function (action) {
       let form = document.querySelector("#form")
       let data = new FormData(form)
@@ -54,15 +49,22 @@
         console.log(error)
       });
     }
+    
+    $("#reUploadButton").click((e) => {
+    	$("#showAttachedBlock").attr("hidden",true)
+    	$("#editAttachedBlock").attr("hidden", false)
+    	$("#reuploadAttachedFile").attr('disabled', false);
+    	$("#reupload").val("true")
+    })
+    
+     $("#noChangeButton").click((e) => {
+    	 $("#showAttachedBlock").attr("hidden",false)
+     	$("#editAttachedBlock").attr("hidden", true)
+    	$("#reuploadAttachedFile").attr('disabled', true);
+    	$("#reupload").val("false")
+    })
+
   })
-
-
-
-
-
-
-
-
 
 </script>
 
@@ -81,10 +83,17 @@
 
 	<!-- form -->
 	<form id="form" method="post" enctype="multipart/form-data">
+		
 		<div class="mb-3">
 			<input id="ID" name="ID" type="text"
 				th:value="${action=='add' ? '': bullet.ID} " hidden>
 		</div>
+		
+		<div class="mb-3">
+			<label for="user" class="form-label">Announced User:</label> 
+			<p id="user" th:text="${action == 'modify'? bullet.user.username:userName}"></p>
+		</div>
+		
 
 		<div class="mb-3">
 			<label for="titleInput" class="form-label">Title:</label> <input
@@ -110,16 +119,28 @@
 				rows="4" th:text="${action=='add' ? '' : bullet.content}"></textarea>
 		</div>
 		
+		<input id="reupload" name="reupload" type="text" value="false" hidden/>
 		
+		<div id="modifyFile" class="mb-3" th:if="${action == 'modify'}">
+			<div id="showAttachedBlock">
+				<a th:text="${fileName == ''?'No Attached File':fileName}" href="#"></a>
+				<button id ="reUploadButton" type="button" class="btn btn-outline-warning">Reupload</button>
+			</div>
+			<div id="editAttachedBlock" hidden>
+				<label for="attachedFile" class="form-label">Attached File: </label>
+				<input type="file" class="form-control" id="reuploadAttachedFile"
+				name="attachedFile" disabled/>
+				<button id ="noChangeButton" type="button" class="btn btn-outline-warning">Don't reupload</button>
+			</div>	
+		</div>		
 		
-		<div class="mb-3">
+		<div id="saveFile" class="mb-3" th:if="${action=='add'}">
 			<label for="attachedFile" class="form-label">Attached File: </label>
 			<input type="file" class="form-control" id="attachedFile"
-				name="attachedFile"
-				th:text="${action=='add' ? '': bullet.attachedFile}" />
+				name="attachedFile"/>
 		</div>
 
-
+		<br/>
 		<button type="submit" class="btn btn-primary">Submit</button>
 	</form>
 

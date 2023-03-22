@@ -57,6 +57,7 @@ public class BulletController {
 			return "login";
 		}
 		model.addAttribute("action", "add");
+		model.addAttribute ("userName",user.getUsername());
 		return "bulletin-add-edit";
 	}
 
@@ -70,32 +71,34 @@ public class BulletController {
 		Bullet bullet = bulletService.findById(Integer.valueOf(stId));
 		
 		String filePath = bullet.getAttachedFile();
+		String fileName="";
+		if (filePath != null) {
+			String[] filePathArray  = filePath.split("\\\\");
+			fileName = filePathArray[filePathArray.length -1];
+		}
+		
 
 		model.addAttribute("bullet", bullet);
 		model.addAttribute("action", "modify");
+		model.addAttribute ("fileName", fileName);
 		return "bulletin-add-edit";
 
 	}
 
 	@PostMapping("/bullet/submit")
-	public ResponseEntity<Bullet> submit(@RequestParam("ID") String ID, @RequestParam("title") String title,
-			@RequestParam("releaseDate") String stReleaseDate, @RequestParam("dueDate") String stDueDate,
-			@RequestParam("content") String content, @RequestParam("attachedFile") MultipartFile file,
+	public ResponseEntity<Bullet> submit(	@RequestParam("ID") String ID, 
+											@RequestParam("title") String title,
+											@RequestParam("releaseDate") String stReleaseDate, 
+											@RequestParam("dueDate") String stDueDate,
+											@RequestParam("content") String content,
+											@RequestParam ("reupload") String reupload,
+											@RequestParam(name ="attachedFile", required=false) MultipartFile file,
 			HttpServletRequest request) throws Exception {
 		User user = (User) request.getSession().getAttribute("user");
 		if (user == null) {
 			return ResponseEntity.notFound().build();
 		}
-
-		String filePath = null;
-		if (!file.isEmpty()) {
-			try {
-				filePath = saveFile(file, uploadFilePath);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return ResponseEntity.internalServerError().build();
-			}
-		}
+		
 		Date releaseDate = formatDate(stReleaseDate);
 		Date dueDate = formatDate(stDueDate);
 
@@ -107,8 +110,18 @@ public class BulletController {
 				tempBullet.setReleaseDate(releaseDate);
 				tempBullet.setDueDate(dueDate);
 				tempBullet.setContent(content);
-				tempBullet.setAttachedFile(filePath);
-
+				if("true".equals (reupload)) {
+					String filePath = null;
+					if (!file.isEmpty()) {
+						try {
+							filePath = saveFile(file, uploadFilePath);
+						} catch (Exception e) {
+							e.printStackTrace();
+							return ResponseEntity.internalServerError().build();
+						}
+					}
+					tempBullet.setAttachedFile(filePath);
+				}
 				Bullet resultBullet = bulletService.save(tempBullet);
 				return new ResponseEntity<>(resultBullet, HttpStatus.OK);
 			} catch (Exception e) {
@@ -118,11 +131,43 @@ public class BulletController {
 
 		} else {
 			Bullet newBullet = new Bullet(title, content, releaseDate, dueDate, user);
+			String filePath = null;
+			if (!file.isEmpty()) {
+				try {
+					filePath = saveFile(file, uploadFilePath);
+				} catch (Exception e) {
+					e.printStackTrace();
+					return ResponseEntity.internalServerError().build();
+				}
+			}
 			newBullet.setAttachedFile(filePath);
 			Bullet resultBullet = bulletService.save(newBullet);
 			return new ResponseEntity<>(resultBullet, HttpStatus.OK);
 		}
 	}
+	
+//	@GetMapping("/showFile/{id}")
+//	public String showFile(@PathVariable String stId, Model model) {
+//		Integer id = Integer.valueOf(stId);
+//		try {
+//			Bullet bullet = bulletService.findById(id);
+//			String path = bullet.getAttachedFile();
+//			if (path ==null) {
+//				return "";
+//			}
+//			
+//			
+//			
+//			
+//			
+//			
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		
+//	}
+	
+	
 	
 	@DeleteMapping("/bullet/{id}")
 	public ResponseEntity<Object> deleteByID (@PathVariable("id") Integer id) {
