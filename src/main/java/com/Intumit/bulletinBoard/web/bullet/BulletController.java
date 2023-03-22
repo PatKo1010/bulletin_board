@@ -6,13 +6,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,12 +23,13 @@ import com.Intumit.bulletinBoard.web.bullet.service.BulletService;
 import com.Intumit.bulletinBoard.web.user.User;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
 public class BulletController {
 
 	@Value("${file.upload.url}")
-	private  String uploadFilePath;
+	private String uploadFilePath;
 
 	@Autowired
 	BulletService bulletService;
@@ -58,35 +59,38 @@ public class BulletController {
 		model.addAttribute("action", "add");
 		return "bulletin-add-edit";
 	}
-	
-	@GetMapping ("/bullet/modify/{id}")
-	public String toModifyPage (Model model, HttpServletRequest request, @PathVariable("id") String stId) throws NumberFormatException, Exception {
+
+	@GetMapping("/bullet/modify/{id}")
+	public String toModifyPage(@PathVariable("id") String stId, Model model, HttpServletRequest request, HttpServletResponse response)
+			throws NumberFormatException, Exception {
 		User user = (User) request.getSession().getAttribute("user");
 		if (user == null) {
 			return "login";
 		}
-		
 		Bullet bullet = bulletService.findById(Integer.valueOf(stId));
 		
-		model.addAttribute ("bullet", bullet);
+		String filePath = bullet.getAttachedFile();
+
+		model.addAttribute("bullet", bullet);
 		model.addAttribute("action", "modify");
 		return "bulletin-add-edit";
-		
+
 	}
 
 	@PostMapping("/bullet/submit")
 	public ResponseEntity<Bullet> submit(@RequestParam("ID") String ID, @RequestParam("title") String title,
 			@RequestParam("releaseDate") String stReleaseDate, @RequestParam("dueDate") String stDueDate,
-			@RequestParam("content") String content, @RequestParam("attachedFile") MultipartFile file, HttpServletRequest request) throws Exception {
-		User user = (User)request.getSession().getAttribute("user");
+			@RequestParam("content") String content, @RequestParam("attachedFile") MultipartFile file,
+			HttpServletRequest request) throws Exception {
+		User user = (User) request.getSession().getAttribute("user");
 		if (user == null) {
 			return ResponseEntity.notFound().build();
 		}
-		
+
 		String filePath = null;
 		if (!file.isEmpty()) {
 			try {
-				filePath = saveFile(file, uploadFilePath );
+				filePath = saveFile(file, uploadFilePath);
 			} catch (Exception e) {
 				e.printStackTrace();
 				return ResponseEntity.internalServerError().build();
@@ -104,22 +108,29 @@ public class BulletController {
 				tempBullet.setDueDate(dueDate);
 				tempBullet.setContent(content);
 				tempBullet.setAttachedFile(filePath);
-				
+
 				Bullet resultBullet = bulletService.save(tempBullet);
-				return new ResponseEntity<> (resultBullet, HttpStatus.OK);
+				return new ResponseEntity<>(resultBullet, HttpStatus.OK);
 			} catch (Exception e) {
 				e.printStackTrace();
 				return ResponseEntity.notFound().build();
 			}
 
 		} else {
-			Bullet newBullet = new Bullet(title, content, releaseDate, dueDate, filePath, user);
+			Bullet newBullet = new Bullet(title, content, releaseDate, dueDate, user);
+			newBullet.setAttachedFile(filePath);
 			Bullet resultBullet = bulletService.save(newBullet);
-			return new ResponseEntity<> (resultBullet, HttpStatus.OK);
+			return new ResponseEntity<>(resultBullet, HttpStatus.OK);
 		}
 	}
 	
-	public static String saveFile(MultipartFile file, String filePath) throws Exception{
+	@DeleteMapping("/bullet/{id}")
+	public ResponseEntity<Object> deleteByID (@PathVariable("id") Integer id) {
+		bulletService.deleteById(id);
+		return new ResponseEntity<>("SuccessFully delelted", HttpStatus.OK);
+	}
+
+	public static String saveFile(MultipartFile file, String filePath) throws Exception {
 		String fileName = file.getOriginalFilename();
 		File dest = new File(filePath + fileName);
 		if (!dest.getParentFile().exists()) {
@@ -130,7 +141,7 @@ public class BulletController {
 	}
 
 	public static Date formatDate(String dateString) throws ParseException {
-		SimpleDateFormat dateFormat = new SimpleDateFormat ("yyyy-MM-dd"); 
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		return dateFormat.parse(dateString);
 	}
 

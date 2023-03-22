@@ -44,7 +44,6 @@ public class Bullet {
 	@Column (name = "due_date", nullable=false)
 	private Date dueDate;
 	
-	@NonNull
 	@Column (name = "attached_file_name")
 	private String attachedFile;
 	

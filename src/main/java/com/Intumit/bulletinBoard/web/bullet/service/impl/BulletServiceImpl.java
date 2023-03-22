@@ -59,6 +59,11 @@ public class BulletServiceImpl implements BulletService {
 		return dest.getPath();
 	}
 
+	@Override
+	public void deleteById(Integer id) {
+		bulletRepo.deleteById(id);
+	}
+
 
 	
 

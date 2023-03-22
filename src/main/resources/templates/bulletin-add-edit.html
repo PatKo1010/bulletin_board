@@ -109,12 +109,14 @@
 			<textarea class="form-control" id="contentInput" name="content"
 				rows="4" th:text="${action=='add' ? '' : bullet.content}"></textarea>
 		</div>
-
+		
+		
+		
 		<div class="mb-3">
 			<label for="attachedFile" class="form-label">Attached File: </label>
 			<input type="file" class="form-control" id="attachedFile"
 				name="attachedFile"
-				th:value="${action=='add' ? '': bullet.attachedFile}" />
+				th:text="${action=='add' ? '': bullet.attachedFile}" />
 		</div>
 
 
