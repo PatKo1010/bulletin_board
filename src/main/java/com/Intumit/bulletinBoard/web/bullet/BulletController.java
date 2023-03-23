@@ -1,6 +1,11 @@
 package com.Intumit.bulletinBoard.web.bullet;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -57,48 +62,44 @@ public class BulletController {
 			return "login";
 		}
 		model.addAttribute("action", "add");
-		model.addAttribute ("userName",user.getUsername());
+		model.addAttribute("userName", user.getUsername());
 		return "bulletin-add-edit";
 	}
 
 	@GetMapping("/bullet/modify/{id}")
-	public String toModifyPage(@PathVariable("id") String stId, Model model, HttpServletRequest request, HttpServletResponse response)
-			throws NumberFormatException, Exception {
+	public String toModifyPage(@PathVariable("id") String stId, Model model, HttpServletRequest request,
+			HttpServletResponse response) throws NumberFormatException, Exception {
 		User user = (User) request.getSession().getAttribute("user");
 		if (user == null) {
 			return "login";
 		}
 		Bullet bullet = bulletService.findById(Integer.valueOf(stId));
-		
+
 		String filePath = bullet.getAttachedFile();
-		String fileName="";
+		String fileName = "";
 		if (filePath != null) {
-			String[] filePathArray  = filePath.split("\\\\");
-			fileName = filePathArray[filePathArray.length -1];
+			String[] filePathArray = filePath.split("\\\\");
+			fileName = filePathArray[filePathArray.length - 1];
 		}
-		
 
 		model.addAttribute("bullet", bullet);
 		model.addAttribute("action", "modify");
-		model.addAttribute ("fileName", fileName);
+		model.addAttribute("fileName", fileName);
 		return "bulletin-add-edit";
 
 	}
 
 	@PostMapping("/bullet/submit")
-	public ResponseEntity<Bullet> submit(	@RequestParam("ID") String ID, 
-											@RequestParam("title") String title,
-											@RequestParam("releaseDate") String stReleaseDate, 
-											@RequestParam("dueDate") String stDueDate,
-											@RequestParam("content") String content,
-											@RequestParam ("reupload") String reupload,
-											@RequestParam(name ="attachedFile", required=false) MultipartFile file,
-			HttpServletRequest request) throws Exception {
+	public ResponseEntity<Bullet> submit(@RequestParam("ID") String ID, @RequestParam("title") String title,
+			@RequestParam("releaseDate") String stReleaseDate, @RequestParam("dueDate") String stDueDate,
+			@RequestParam("content") String content, @RequestParam("reupload") String reupload,
+			@RequestParam(name = "attachedFile", required = false) MultipartFile file, HttpServletRequest request)
+			throws Exception {
 		User user = (User) request.getSession().getAttribute("user");
 		if (user == null) {
 			return ResponseEntity.notFound().build();
 		}
-		
+
 		Date releaseDate = formatDate(stReleaseDate);
 		Date dueDate = formatDate(stDueDate);
 
@@ -110,7 +111,7 @@ public class BulletController {
 				tempBullet.setReleaseDate(releaseDate);
 				tempBullet.setDueDate(dueDate);
 				tempBullet.setContent(content);
-				if("true".equals (reupload)) {
+				if ("true".equals(reupload)) {
 					String filePath = null;
 					if (!file.isEmpty()) {
 						try {
@@ -145,32 +146,46 @@ public class BulletController {
 			return new ResponseEntity<>(resultBullet, HttpStatus.OK);
 		}
 	}
-	
-//	@GetMapping("/showFile/{id}")
-//	public String showFile(@PathVariable String stId, Model model) {
-//		Integer id = Integer.valueOf(stId);
-//		try {
-//			Bullet bullet = bulletService.findById(id);
-//			String path = bullet.getAttachedFile();
-//			if (path ==null) {
-//				return "";
-//			}
-//			
-//			
-//			
-//			
-//			
-//			
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		
-//	}
-	
-	
-	
+
+	@GetMapping("/download/bullet/{id}")
+	public void downloadFile(@PathVariable("id") String stId, Model model, HttpServletResponse response) {
+		Integer id = Integer.valueOf(stId);
+		try {
+			Bullet bullet = bulletService.findById(id);
+			String path = bullet.getAttachedFile();
+			File file = new File(path);
+			if (!file.exists()) {
+				return;
+			}
+			response.reset();
+			response.setContentType("application/octet-stream");
+			response.setCharacterEncoding("UTF-8");
+			response.setContentLength((int) file.length());
+			response.setHeader("Content-Disposition", "attachment;filename=" + file.getName());
+			try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));) {
+				byte[] buff = new byte[1024];
+				OutputStream os = response.getOutputStream();
+				int i = 0;
+				while ((i = bis.read(buff)) != -1) {
+					os.write(buff, 0, i);
+					os.flush();
+				}
+				os.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+				return ;
+			}
+			return ;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ;
+		}
+
+	}
+
 	@DeleteMapping("/bullet/{id}")
-	public ResponseEntity<Object> deleteByID (@PathVariable("id") Integer id) {
+	public ResponseEntity<Object> deleteByID(@PathVariable("id") Integer id) {
 		bulletService.deleteById(id);
 		return new ResponseEntity<>("SuccessFully delelted", HttpStatus.OK);
 	}

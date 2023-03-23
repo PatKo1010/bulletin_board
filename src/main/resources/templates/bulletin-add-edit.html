@@ -42,7 +42,7 @@
       }).then((d) => {
         console.log(d);
         alert("bulletin successfully saved")
-        const href = "/bullets/page/1"
+        const href = "/bullet/modify/"+d.id;
         window.location = href
       }).catch((error) => {
         alert("failed saving. Please contact IT team")
@@ -123,7 +123,7 @@
 		
 		<div id="modifyFile" class="mb-3" th:if="${action == 'modify'}">
 			<div id="showAttachedBlock">
-				<a th:text="${fileName == ''?'No Attached File':fileName}" href="#"></a>
+				<a th:text="${fileName == ''?'No Attached File':fileName}" th:href="@{'/download/bullet/'+${bullet.ID}}"></a>
 				<button id ="reUploadButton" type="button" class="btn btn-outline-warning">Reupload</button>
 			</div>
 			<div id="editAttachedBlock" hidden>
